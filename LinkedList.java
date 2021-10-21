@@ -1,3 +1,5 @@
+import javax.naming.ConfigurationException;
+import java.util.ConcurrentModificationException;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -8,7 +10,7 @@ import java.util.NoSuchElementException;
  *
  * @author ckurdelak20@georgefox.edu
  */
-public class LinkedList<E> {
+public class LinkedList<E> implements Iterable<E> {
     // TODO implement class
     // TODO use fail-fast iteration
 
@@ -24,12 +26,23 @@ public class LinkedList<E> {
 
     // uses nodes to store stuff
 
+    // for constructing iterators
+    private static boolean REVERSED = true;
+    private static boolean NOT_REVERSED = false;
+
     private LinkedListNode<E> _head;
     private LinkedListNode<E> _tail;
     private int _size;
+    private long _modCount; // TODO increment this whenever list is modified
 
-    public void LinkedList() {
-        // TODO implement ctor
+    /**
+     * Creates a new LinkedList.
+     */
+    public LinkedList() {
+        _head = null;
+        _tail = null;
+        _size = 0;
+        _modCount = 0;
     }
 
 
@@ -55,7 +68,29 @@ public class LinkedList<E> {
      * @throws IndexOutOfBoundsException if the specified index is out of range
      */
     public boolean add(E element) {
-        // TODO implement append add
+        LinkedListNode<E> newNode;
+        if (this.size() == 0) {
+            newNode = new LinkedListNode<>(element);
+            _tail = newNode;
+        }
+        else {
+            // create new node
+            newNode = new LinkedListNode<>(element);
+            // set newNode's prev and next to null
+            // set newNode's value
+            // set newNode's prev to current tail
+            newNode.setPrevious(_tail);
+            // set current tail's next to newNode
+            _tail.setNext(newNode);
+            // set newNode as tail
+            _tail = newNode;
+        }
+        // increment _size
+        _size++;
+        // increment _modCount
+        _modCount++;
+
+        return true;
     }
 
 
@@ -63,7 +98,11 @@ public class LinkedList<E> {
      * Removes all the elements from this list. The list will be empty after this call returns.
      */
     public void clear() {
-        // TODO implement clear
+        // let go of head and tail
+        _head.setValue(null);
+        _tail.setValue(null);
+        _size = 0;
+        _modCount++;
     }
 
 
@@ -92,6 +131,12 @@ public class LinkedList<E> {
      */
     public int indexOf(E element) {
         // TODO implement indexOf
+        // use iterator?
+        // currentNode = _head
+        // while there is still another node and currentNode's value != value
+        //      go to next node
+        //      currentNode = currentNode.getNext();
+        //      i++
     }
 
 
@@ -103,7 +148,7 @@ public class LinkedList<E> {
      * false if this list contains elements
      */
     public boolean isEmpty() {
-        return _index == 0;
+        return (_size == 0);
     }
 
 
@@ -139,7 +184,7 @@ public class LinkedList<E> {
      * @return the number of elements in this list
      */
     public int size() {
-        return _index;
+        return _size;
     }
 
 
@@ -150,6 +195,7 @@ public class LinkedList<E> {
      */
     public Iterator<E> iterator() {
         // TODO implement iterator
+        return new LinkedListIterator(NOT_REVERSED);
     }
 
 
@@ -160,6 +206,7 @@ public class LinkedList<E> {
      */
     public Iterator<E> reverseIterator() {
         // TODO implement reverseIterator
+        return new LinkedListIterator(REVERSED);
     }
 
 
@@ -172,11 +219,15 @@ public class LinkedList<E> {
     private class LinkedListNode<E> {
         // TODO implement class LinkedListNode
 
+        E _value;
+        LinkedListNode<E> _prev;
+        LinkedListNode<E> _next;
+
         /**
          * Constructs a new LinkedListNode.
          */
         public LinkedListNode() {
-            // TODO implement LLN default ctor
+            this(null);
         }
 
 
@@ -186,7 +237,7 @@ public class LinkedList<E> {
          * @param value the value stored in this LinkedListNode
          */
         public LinkedListNode(E value) {
-            // TODO implement LLN ctor with value parameter
+            this(value, null, null);
         }
 
 
@@ -198,7 +249,10 @@ public class LinkedList<E> {
          * @param next the next LinkedListNode
          */
         public LinkedListNode(E value, LinkedListNode<E> prev, LinkedListNode<E> next) {
-            // TODO implement LLN ctor with value, prev, and next parameters
+            // TODO find out what to do about validation
+            _value = value;
+            _prev = prev;
+            _next = next;
         }
 
 
@@ -208,7 +262,7 @@ public class LinkedList<E> {
          * @return the value of this LinkedListNode
          */
         public E getValue() {
-            // TODO implement getValue
+            return _value;
         }
 
 
@@ -218,7 +272,7 @@ public class LinkedList<E> {
          * @return the previous LinkedListNode
          */
         public LinkedListNode<E> getPrevious() {
-            // TODO implement getPrevious
+            return _prev;
         }
 
 
@@ -228,7 +282,7 @@ public class LinkedList<E> {
          * @return the next LinkedListNode
          */
         public LinkedListNode<E> getNext() {
-            // TODO implement getNext
+            return _next;
         }
 
 
@@ -238,7 +292,7 @@ public class LinkedList<E> {
          * @param value the new value of this node
          */
         public void setValue(E value) {
-            // TODO implement setValue
+            _value = value;
         }
 
 
@@ -248,7 +302,7 @@ public class LinkedList<E> {
          * @param prev the new previous node
          */
         public void setPrevious(LinkedListNode<E> prev) {
-            // TODO implement setPrevious
+            _prev = prev;
         }
 
 
@@ -258,7 +312,7 @@ public class LinkedList<E> {
          * @param next the new next node
          */
         public void setNext(LinkedListNode<E> next) {
-            // TODO implement setNext
+            _next = next;
         }
     }
 
@@ -268,8 +322,14 @@ public class LinkedList<E> {
      *
      * Uses fail-fast iteration.
      */
-    private class LinkedListIterator {
+    private class LinkedListIterator implements Iterator<E> {
         // TODO implement LinkedListIterator
+        // TODO have a copy of _modCount as it was when iterator was constructed
+        // TODO check against LL's _modCount, and if it is different, stop iteration
+
+        private int _currentIndex;
+        private boolean _reverse;
+        private long _modCountCopy;
 
         /**
          * Constructs a new LinkedListIterator object.
@@ -277,7 +337,9 @@ public class LinkedList<E> {
          * @param reverse true if this iterator is a reverse iterator, else false
          */
         public LinkedListIterator(boolean reverse) {
-            // TODO implement LLI ctor
+            _currentIndex = 0;
+            _reverse = reverse;
+            _modCountCopy = _modCount;
         }
 
         /**
@@ -286,9 +348,17 @@ public class LinkedList<E> {
          *
          * @return true if the current index is less than the size of the LinkedList
          * else return false
+         * @throws ConcurrentModificationException if the list has been modified since iteration
+         * started
          */
         public boolean hasNext() {
-            // TODO implement hasNext
+            if (_modCountCopy == _modCount) {
+                // TODO hangle reverse iteration
+                return _currentIndex < _size;
+            }
+            else {
+                throw new ConcurrentModificationException();
+            }
         }
 
 
@@ -296,10 +366,22 @@ public class LinkedList<E> {
          * Returns the next element in this iteration.
          *
          * @return the next element in this iteration
-         * @throws NoSuchElementException if the item at the current index is null
+         * @throws ConcurrentModificationException if the list has been modified since iteration
+         * started
          */
-        public E hasNext() {
-            // TODO implement hasNext
+        public E next() {
+            if (_modCountCopy == _modCount) {
+                // TODO handle reverse iteration
+                E item = get(_currentIndex);
+                if (item == null) {
+                    throw new NoSuchElementException();
+                }
+                _currentIndex++;
+                return item;
+            }
+            else {
+                throw new ConcurrentModificationException();
+            }
         }
     }
 }
