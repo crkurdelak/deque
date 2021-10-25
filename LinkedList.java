@@ -10,13 +10,6 @@ import java.util.NoSuchElementException;
  * @author ckurdelak20@georgefox.edu
  */
 public class LinkedList<E> implements Iterable<E> {
-    // TODO implement class
-
-    // Ensure that your iterator class implements fail-fast semantics and throws a
-    //  ConcurrentModificationException if the collection is structurally modified (i.e., if a
-    //  node is removed or added) once an iterator over the list is constructed.  This should be
-    //  accomplished by tracking the modification count of the list itself, and storing a
-    //  snapshot of that count inside the iterator during construction.
 
     // for constructing iterators
     private static final boolean REVERSED = true;
@@ -50,12 +43,11 @@ public class LinkedList<E> implements Iterable<E> {
      * @throws IndexOutOfBoundsException if the specified index is out of range
      */
     public void add(int index, E element) {
-        // TODO implement insert add
         LinkedListNode<E> newNode = new LinkedListNode<>(element);
         LinkedListNode<E> oldNode;
         LinkedListNode<E> prevNode;
 
-        if (isValidIndex(index)) {
+        if (index <= this.size()) {
             if (this.size() == 0) {
                 _tail = newNode;
             } else {
@@ -73,7 +65,6 @@ public class LinkedList<E> implements Iterable<E> {
                     } else {
                         oldNode = this.seek(index);
                     }
-                    // TODO handle if prevNode is the head or tail
                     prevNode = oldNode.getPrevious();
                     // set newNode's prev to prevNode
                     newNode.setPrevious(prevNode);
@@ -83,8 +74,10 @@ public class LinkedList<E> implements Iterable<E> {
                     prevNode.setNext(newNode);
                     // set oldNode's prev to newNode
                     oldNode.setPrevious(newNode);
+
                 }
             }
+            _size ++;
             _modCount++;
         }
         else {
@@ -181,13 +174,18 @@ public class LinkedList<E> implements Iterable<E> {
      * or -1 if this list does not contain the element.
      */
     public int indexOf(E element) {
-        // TODO implement indexOf
-        // use iterator?
-        // currentNode = _head
-        // while there is still another node and currentNode's value != value
-        //      go to next node
-        //      currentNode = currentNode.getNext();
-        //      i++
+        Iterator<E> iter = iterator();
+        boolean found = false;
+        E currentItem;
+        int index = 0;
+
+        while (iter.hasNext() && !found) {
+            currentItem = iter.next();
+            found = (currentItem == element);
+            index ++;
+        }
+
+        return index;
     }
 
 
@@ -214,31 +212,45 @@ public class LinkedList<E> implements Iterable<E> {
      */
     public E remove(int index) {
         if (this.isValidIndex(index)) {
-            // TODO implement remove
             LinkedListNode<E> oldNode;
             LinkedListNode<E> prevNode;
             LinkedListNode<E> nextNode;
+            E oldValue;
 
             if (index == 0) {
                 oldNode = _head;
+                oldValue = oldNode.getValue();
                 nextNode = oldNode.getNext();
+
+                nextNode.setPrevious(null);
+                _head = nextNode;
             }
             else if (index == size()) {
                 oldNode = _tail;
+                oldValue = oldNode.getValue();
                 prevNode = oldNode.getPrevious();
+
+                prevNode.setNext(null);
+                _tail = prevNode;
             }
             else {
                 oldNode = this.seek(index);
+                oldValue = oldNode.getValue();
                 prevNode = oldNode.getPrevious();
                 nextNode = oldNode.getNext();
-                // TODO handle when prevNode or nextNode is the head or tail
-            }
-            // seek to index
-            // change pointers of adjacent nodes
-            // null out this node
 
-            // return old element
+                prevNode.setNext(nextNode);
+                nextNode.setPrevious(prevNode);
+            }
+
+            oldNode.setPrevious(null);
+            oldNode.setNext(null);
+            oldNode.setValue(null);
+
+            _size--;
             _modCount++;
+
+            return oldValue;
         }
         else {
             throw new IndexOutOfBoundsException();
@@ -258,9 +270,11 @@ public class LinkedList<E> implements Iterable<E> {
      */
     public E set(int index, E element) {
         LinkedListNode<E> node;
+        E oldValue;
         if (this.isValidIndex(index)) {
             if (index == 0) {
                 node = _head;
+
             }
             else if (index == this.size()) {
                 node = _tail;
@@ -269,11 +283,14 @@ public class LinkedList<E> implements Iterable<E> {
                 node = this.seek(index);
             }
 
+            oldValue = node.getValue();
             node.setValue(element);
         }
         else {
             throw new IndexOutOfBoundsException();
         }
+
+        return oldValue;
     }
 
 
@@ -316,7 +333,7 @@ public class LinkedList<E> implements Iterable<E> {
      * @return true if the index is valid; else return false
      */
     private boolean isValidIndex(int index) {
-        return (index > this.size() || index < 0);
+        return (index <= this.size() && index >= 0);
     }
 
 
@@ -375,7 +392,6 @@ public class LinkedList<E> implements Iterable<E> {
          * @param next the next LinkedListNode
          */
         public LinkedListNode(E value, LinkedListNode<E> prev, LinkedListNode<E> next) {
-            // TODO find out what to do about validation
             _value = value;
             _prev = prev;
             _next = next;
@@ -451,8 +467,9 @@ public class LinkedList<E> implements Iterable<E> {
     private class LinkedListIterator implements Iterator<E> {
 
         private int _currentIndex;
-        private boolean _reverse;
-        private long _modCountCopy;
+        private LinkedListNode<E> _currentNode;
+        private final boolean _reverse;
+        private final long _modCountCopy;
 
         /**
          * Constructs a new LinkedListIterator object.
@@ -460,7 +477,14 @@ public class LinkedList<E> implements Iterable<E> {
          * @param reverse true if this iterator is a reverse iterator, else false
          */
         public LinkedListIterator(boolean reverse) {
-            _currentIndex = 0;
+            if (reverse) {
+                _currentIndex = size();
+                _currentNode = _tail;
+            }
+            else {
+                _currentIndex = 0;
+                _currentNode = _head;
+            }
             _reverse = reverse;
             _modCountCopy = _modCount;
         }
@@ -480,7 +504,7 @@ public class LinkedList<E> implements Iterable<E> {
                     return _currentIndex < _size;
                 }
                 else {
-                    return _currentIndex > 0; // TODO see if it should be 0 or 1
+                    return _currentIndex > 0;
                 }
             }
             else {
@@ -503,9 +527,11 @@ public class LinkedList<E> implements Iterable<E> {
                     throw new NoSuchElementException();
                 }
                 if (! _reverse) {
+                    _currentNode = _currentNode.getNext();
                     _currentIndex++;
                 }
                 else {
+                    _currentNode = _currentNode.getPrevious();
                     _currentIndex--;
                 }
                 return item;
