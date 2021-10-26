@@ -47,7 +47,7 @@ public class LinkedList<E> implements Iterable<E> {
         LinkedListNode<E> oldNode;
         LinkedListNode<E> prevNode;
 
-        if (index <= this.size()) {
+        if (index <= this.size() && index >= 0) {
             if (this.size() == 0) {
                 _tail = newNode;
             } else {
@@ -97,6 +97,7 @@ public class LinkedList<E> implements Iterable<E> {
         LinkedListNode<E> newNode;
         if (this.size() == 0) {
             newNode = new LinkedListNode<>(element);
+            _head = newNode;
             _tail = newNode;
         }
         else {
@@ -125,10 +126,12 @@ public class LinkedList<E> implements Iterable<E> {
      */
     public void clear() {
         // let go of head and tail
-        _head.setValue(null);
-        _tail.setValue(null);
-        _size = 0;
-        _modCount++;
+        if (_head != null && _tail != null) {
+            _head.setValue(null);
+            _tail.setValue(null);
+            _size = 0;
+            _modCount++;
+        }
     }
 
 
@@ -211,7 +214,7 @@ public class LinkedList<E> implements Iterable<E> {
      * @throws IndexOutOfBoundsException if the specified index is out of range
      */
     public E remove(int index) {
-        if (this.isValidIndex(index)) {
+        if (this.isValidIndex(index) && !isEmpty()) {
             LinkedListNode<E> oldNode;
             LinkedListNode<E> prevNode;
             LinkedListNode<E> nextNode;
@@ -333,7 +336,7 @@ public class LinkedList<E> implements Iterable<E> {
      * @return true if the index is valid; else return false
      */
     private boolean isValidIndex(int index) {
-        return (index <= this.size() && index >= 0);
+        return (index < this.size() && index >= 0);
     }
 
 
@@ -519,22 +522,27 @@ public class LinkedList<E> implements Iterable<E> {
          * @return the next element in this iteration
          * @throws ConcurrentModificationException if the list has been modified since iteration
          * started
+         * @throws NoSuchElementException if the iteration has no more elements
          */
         public E next() {
             if (_modCountCopy == _modCount) {
-                E item = get(_currentIndex);
-                if (item == null) {
-                    throw new NoSuchElementException();
-                }
-                if (! _reverse) {
-                    _currentNode = _currentNode.getNext();
-                    _currentIndex++;
+                if (hasNext()) {
+                    E item = get(_currentIndex);
+                    if (item == null) {
+                        throw new NoSuchElementException();
+                    }
+                    if (!_reverse) {
+                        _currentNode = _currentNode.getNext();
+                        _currentIndex++;
+                    } else {
+                        _currentNode = _currentNode.getPrevious();
+                        _currentIndex--;
+                    }
+                    return item;
                 }
                 else {
-                    _currentNode = _currentNode.getPrevious();
-                    _currentIndex--;
+                    throw new NoSuchElementException();
                 }
-                return item;
             }
             else {
                 throw new ConcurrentModificationException();
