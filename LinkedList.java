@@ -59,7 +59,7 @@ public class LinkedList<E> implements Iterable<E> {
                     oldNode.setPrevious(newNode);
                     _head = newNode;
                 } else {
-                    if (index == this.size()) { // TODO see if this is right
+                    if (index == this.size()) {
                         oldNode = _tail; // there is no next node but there is a previous node
                         // (unless size == 1)
                     } else {
@@ -151,7 +151,7 @@ public class LinkedList<E> implements Iterable<E> {
 
             if (index == 0) {
                 node = _head;
-            } else if (index == this.size() - 1) { // TODO make sure this is right
+            } else if (index == this.size() - 1) {
                 node = _tail;
             } else {
                 node = this.seek(index);
