@@ -49,30 +49,31 @@ public class LinkedList<E> implements Iterable<E> {
 
         if (index <= this.size() && index >= 0) {
             if (this.size() == 0) {
+                _head = newNode;
                 _tail = newNode;
             } else {
                 if (index == 0) {
-                    oldNode = _head;
-                    // set NewNode's next to oldNode
+                    oldNode = _head; // there is no previous node but there is a next node
+                    // (unless size == 1)
                     newNode.setNext(oldNode);
-                    // set oldNode's prev to newNode
                     oldNode.setPrevious(newNode);
                     _head = newNode;
-                    // make newNode the new head
                 } else {
-                    if (index == this.size()) {
-                        oldNode = _tail;
+                    if (index == this.size()) { // TODO see if this is right
+                        oldNode = _tail; // there is no next node but there is a previous node
+                        // (unless size == 1)
                     } else {
-                        oldNode = this.seek(index);
+                        oldNode = this.seek(index); // there is a previous and a next node bc
+                        // oldNode is neither the head nor the tail
                     }
+
                     prevNode = oldNode.getPrevious();
-                    // set newNode's prev to prevNode
+                    if (prevNode != null) {
+                        prevNode.setNext(newNode);
+                    }
+
                     newNode.setPrevious(prevNode);
-                    // set NewNode's next to oldNode
                     newNode.setNext(oldNode);
-                    // set prevNode's next to newNode
-                    prevNode.setNext(newNode);
-                    // set oldNode's prev to newNode
                     oldNode.setPrevious(newNode);
 
                 }
@@ -185,7 +186,13 @@ public class LinkedList<E> implements Iterable<E> {
         while (iter.hasNext() && !found) {
             currentItem = iter.next();
             found = (currentItem == element);
-            index ++;
+            if (!found) {
+                index++;
+            }
+        }
+
+        if (!found) {
+            index = -1;
         }
 
         return index;
@@ -223,12 +230,17 @@ public class LinkedList<E> implements Iterable<E> {
             if (index == 0) {
                 oldNode = _head;
                 oldValue = oldNode.getValue();
-                nextNode = oldNode.getNext();
+                if (this.size() > 1) {
+                    nextNode = oldNode.getNext();
 
-                nextNode.setPrevious(null);
-                _head = nextNode;
+                    nextNode.setPrevious(null);
+                    _head = nextNode;
+                }
+                else {
+                    _head = null;
+                }
             }
-            else if (index == size()) {
+            else if (index == size() - 1) {
                 oldNode = _tail;
                 oldValue = oldNode.getValue();
                 prevNode = oldNode.getPrevious();
@@ -349,10 +361,9 @@ public class LinkedList<E> implements Iterable<E> {
     private LinkedListNode<E> seek(int index) {
         LinkedListNode<E> currentNode = _head;
 
-        for (int i = 0; i <= index; i++) {
+        for (int i = 0; i < index; i++) {
             currentNode = currentNode.getNext();
         }
-
         return currentNode;
     }
 
@@ -481,7 +492,8 @@ public class LinkedList<E> implements Iterable<E> {
          */
         public LinkedListIterator(boolean reverse) {
             if (reverse) {
-                _currentIndex = size();
+                // The index of the last element is size - 1 because indexing starts at 0.
+                _currentIndex = size() - 1;
                 _currentNode = _tail;
             }
             else {
@@ -507,7 +519,7 @@ public class LinkedList<E> implements Iterable<E> {
                     return _currentIndex < _size;
                 }
                 else {
-                    return _currentIndex > 0;
+                    return _currentIndex >= 0;
                 }
             }
             else {
