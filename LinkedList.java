@@ -70,11 +70,18 @@ public class LinkedList<E> implements Iterable<E> {
                     prevNode = oldNode.getPrevious();
                     if (prevNode != null) {
                         prevNode.setNext(newNode);
+                        newNode.setPrevious(prevNode);
+                    }
+                    else {
+                        newNode.setPrevious(_head);
                     }
 
-                    newNode.setPrevious(prevNode);
                     newNode.setNext(oldNode);
                     oldNode.setPrevious(newNode);
+
+                    if (index == this.size()) {
+                        _tail = newNode;
+                    }
 
                 }
             }
@@ -102,20 +109,12 @@ public class LinkedList<E> implements Iterable<E> {
             _tail = newNode;
         }
         else {
-            // create new node
             newNode = new LinkedListNode<>(element);
-            // set newNode's prev and next to null
-            // set newNode's value
-            // set newNode's prev to current tail
             newNode.setPrevious(_tail);
-            // set current tail's next to newNode
             _tail.setNext(newNode);
-            // set newNode as tail
             _tail = newNode;
         }
-        // increment _size
         _size++;
-        // increment _modCount
         _modCount++;
 
         return true;
@@ -152,7 +151,7 @@ public class LinkedList<E> implements Iterable<E> {
 
             if (index == 0) {
                 node = _head;
-            } else if (index == this.size()) {
+            } else if (index == this.size() - 1) { // TODO make sure this is right
                 node = _tail;
             } else {
                 node = this.seek(index);
