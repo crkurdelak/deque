@@ -9,11 +9,11 @@ import java.util.NoSuchElementException;
  * @author ckurdelak20@georgefox.edu
  */
 public class Deque<E> implements Iterable<E> {
-    // TODO add enqueueHead()
-    // TODO add tail()
-    // TODO add dequeueTail()
     // TODO add reverseIterator
-    // TODO change names that need to be changed
+
+    // for constructing iterators
+    private static final boolean REVERSED = true;
+    private static final boolean NOT_REVERSED = false;
 
     private QueueNode<E> _head;
     private QueueNode<E> _tail;
@@ -54,6 +54,30 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
+     * Adds the specified element to the head of this Queue.
+     *
+     * @param element the element to be enqueued
+     * @return true if this collection has changed as a result of the call
+     */
+    public boolean enqueueHead(E element) {
+        QueueNode<E> newNode;
+        if (isEmpty()) {
+            newNode = new QueueNode<>(element);
+            _head = newNode;
+            _tail = newNode;
+        }
+        else {
+            newNode = new QueueNode<>(element);
+            newNode.setNext(_head);
+            _head.setPrevious(newNode);
+            _head = newNode;
+        }
+        _depth ++;
+        return true;
+    }
+
+
+    /**
      * Enqueues all given elements.
      *
      * @param elements an iterable collection of elements to enqueue
@@ -82,6 +106,22 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
+     * Returns the value at the tail of this Queue without dequeueing it.
+     *
+     * @return the value at the tail of this Queue.
+     * @throws NoSuchElementException if the Queue is empty
+     */
+    public E tail() {
+        if (!isEmpty()) {
+            return _tail.getValue();
+        }
+        else {
+            throw new NoSuchElementException();
+        }
+    }
+
+
+    /**
      * Removes and returns the head of this Queue.
      *
      * @return the value of the head of this Queue
@@ -94,6 +134,26 @@ public class Deque<E> implements Iterable<E> {
 
             _depth --;
             return oldHead.getValue();
+        }
+        else {
+            throw new NoSuchElementException(); // TODO see if this is right exception to throw
+        }
+    }
+
+
+    /**
+     * Removes and returns the tail of this Queue.
+     *
+     * @return the value of the tail of this Queue
+     * @throws NoSuchElementException if the Queue is empty
+     */
+    public E dequeueTail() {
+        if (!isEmpty()) {
+            QueueNode<E> oldTail = _tail;
+            _tail = oldTail.getPrevious();
+
+            _depth --;
+            return oldTail.getValue();
         }
         else {
             throw new NoSuchElementException(); // TODO see if this is right exception to throw
@@ -138,7 +198,17 @@ public class Deque<E> implements Iterable<E> {
      * @return a new LinkedListIterator object that iterates from head to tail
      */
     public Iterator<E> iterator() {
-        return new QueueIterator();
+        return new QueueIterator(NOT_REVERSED);
+    }
+
+
+    /**
+     * Returns a new LinkedListIterator object that iterates from tail to head.
+     *
+     * @return a new LinkedListIterator object that iterates from tail to head
+     */
+    public Iterator<E> reverseIterator() {
+        return new QueueIterator(REVERSED);
     }
 
 
@@ -252,12 +322,14 @@ public class Deque<E> implements Iterable<E> {
      */
     private class QueueIterator implements Iterator<E> {
 
+        private final boolean _reverse;
+
         /**
          * Constructs a new QueueIterator object.
          *
          */
-        public QueueIterator() {
-            // No internal state is needed because the top is always consumed during iteration.
+        public QueueIterator(boolean reverse) {
+            _reverse = reverse;
         }
 
         /**
