@@ -15,13 +15,13 @@ public class Deque<E> implements Iterable<E> {
     private static final boolean REVERSED = true;
     private static final boolean NOT_REVERSED = false;
 
-    private QueueNode<E> _head;
-    private QueueNode<E> _tail;
+    private DequeNode<E> _head;
+    private DequeNode<E> _tail;
     private int _depth;
 
 
     /**
-     * Creates a new Queue.
+     * Creates a new Deque.
      */
     public Deque() {
         _head = null;
@@ -30,20 +30,20 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Adds the specified element to the end of this Queue.
+     * Adds the specified element to the end of this Deque.
      *
      * @param element the element to be enqueued
      * @return true if this collection has changed as a result of the call
      */
     public boolean enqueue(E element) {
-        QueueNode<E> newNode;
+        DequeNode<E> newNode;
         if (isEmpty()) {
-            newNode = new QueueNode<>(element);
+            newNode = new DequeNode<>(element);
             _head = newNode;
             _tail = newNode;
         }
         else {
-            newNode = new QueueNode<>(element);
+            newNode = new DequeNode<>(element);
             newNode.setPrevious(_tail);
             _tail.setNext(newNode);
             _tail = newNode;
@@ -54,20 +54,20 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Adds the specified element to the head of this Queue.
+     * Adds the specified element to the head of this Deque.
      *
      * @param element the element to be enqueued
      * @return true if this collection has changed as a result of the call
      */
     public boolean enqueueHead(E element) {
-        QueueNode<E> newNode;
+        DequeNode<E> newNode;
         if (isEmpty()) {
-            newNode = new QueueNode<>(element);
+            newNode = new DequeNode<>(element);
             _head = newNode;
             _tail = newNode;
         }
         else {
-            newNode = new QueueNode<>(element);
+            newNode = new DequeNode<>(element);
             newNode.setNext(_head);
             _head.setPrevious(newNode);
             _head = newNode;
@@ -90,10 +90,10 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Returns the value at the head of this Queue without dequeueing it.
+     * Returns the value at the head of this Deque without dequeueing it.
      *
-     * @return the value at the head of this Queue.
-     * @throws NoSuchElementException if the Queue is empty
+     * @return the value at the head of this Deque.
+     * @throws NoSuchElementException if the Deque is empty
      */
     public E head() {
         if (!isEmpty()) {
@@ -106,10 +106,10 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Returns the value at the tail of this Queue without dequeueing it.
+     * Returns the value at the tail of this Deque without dequeueing it.
      *
-     * @return the value at the tail of this Queue.
-     * @throws NoSuchElementException if the Queue is empty
+     * @return the value at the tail of this Deque.
+     * @throws NoSuchElementException if the Deque is empty
      */
     public E tail() {
         if (!isEmpty()) {
@@ -122,14 +122,14 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Removes and returns the head of this Queue.
+     * Removes and returns the head of this Deque.
      *
-     * @return the value of the head of this Queue
-     * @throws NoSuchElementException if the Queue is empty
+     * @return the value of the head of this Deque
+     * @throws NoSuchElementException if the Deque is empty
      */
     public E dequeue() {
         if (!isEmpty()) {
-            QueueNode<E> oldHead = _head;
+            DequeNode<E> oldHead = _head;
             _head = oldHead.getNext();
 
             _depth --;
@@ -142,14 +142,14 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Removes and returns the tail of this Queue.
+     * Removes and returns the tail of this Deque.
      *
-     * @return the value of the tail of this Queue
-     * @throws NoSuchElementException if the Queue is empty
+     * @return the value of the tail of this Deque
+     * @throws NoSuchElementException if the Deque is empty
      */
     public E dequeueTail() {
         if (!isEmpty()) {
-            QueueNode<E> oldTail = _tail;
+            DequeNode<E> oldTail = _tail;
             _tail = oldTail.getPrevious();
 
             _depth --;
@@ -162,7 +162,7 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Removes all the elements from this Queue. The Queue will be empty after this call returns.
+     * Removes all the elements from this Deque. The Deque will be empty after this call returns.
      */
     public void clear() {
         _head = null;
@@ -172,10 +172,10 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Returns true if this Queue contains no elements.
+     * Returns true if this Deque contains no elements.
      *
-     * @return true if this Queue contains no elements
-     * false if this Queue contains elements
+     * @return true if this Deque contains no elements
+     * false if this Deque contains elements
      */
     public boolean isEmpty() {
         return (_depth == 0);
@@ -183,9 +183,9 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Returns the number of elements in this list.
+     * Returns the number of elements in this Deque.
      *
-     * @return the number of elements in this list
+     * @return the number of elements in this Deque
      */
     public int depth() {
         return _depth;
@@ -193,63 +193,63 @@ public class Deque<E> implements Iterable<E> {
 
 
     /**
-     * Returns a new LinkedListIterator object that iterates from head to tail.
+     * Returns a new DequeIterator object that iterates from head to tail.
      *
-     * @return a new LinkedListIterator object that iterates from head to tail
+     * @return a new DequeIterator object that iterates from head to tail
      */
     public Iterator<E> iterator() {
-        return new QueueIterator(NOT_REVERSED);
+        return new DequeIterator(NOT_REVERSED);
     }
 
 
     /**
-     * Returns a new LinkedListIterator object that iterates from tail to head.
+     * Returns a new DequeIterator object that iterates from tail to head.
      *
-     * @return a new LinkedListIterator object that iterates from tail to head
+     * @return a new DequeIterator object that iterates from tail to head
      */
     public Iterator<E> reverseIterator() {
-        return new QueueIterator(REVERSED);
+        return new DequeIterator(REVERSED);
     }
 
 
     /**
-     * A node that stores a single element in a LinkedList as well as references to its adjacent
+     * A node that stores a single element in a Deque as well as references to its adjacent
      * nodes.
      *
      * @param <E> the type of element stored in this node
      */
-    private class QueueNode<E> {
+    private class DequeNode<E> {
 
         private E _value;
-        private QueueNode<E> _prev;
-        private QueueNode<E> _next;
+        private DequeNode<E> _prev;
+        private DequeNode<E> _next;
 
         /**
-         * Constructs a new QueueNode.
+         * Constructs a new DequeNode.
          */
-        public QueueNode() {
+        public DequeNode() {
             this(null);
         }
 
 
         /**
-         * Constructs a new QueueNode with the given value.
+         * Constructs a new DequeNode with the given value.
          *
-         * @param value the value stored in this QueueNode
+         * @param value the value stored in this DequeNode
          */
-        public QueueNode(E value) {
+        public DequeNode(E value) {
             this(value, null, null);
         }
 
 
         /**
-         * Constructs a new QueueNode with the given value.
+         * Constructs a new DequeNode with the given value.
          *
-         * @param value the value stored in this QueueNode
-         * @param prev the previous QueueNode
-         * @param next the next QueueNode
+         * @param value the value stored in this DequeNode
+         * @param prev the previous DequeNode
+         * @param next the next DequeNode
          */
-        public QueueNode(E value, QueueNode<E> prev, QueueNode<E> next) {
+        public DequeNode(E value, DequeNode<E> prev, DequeNode<E> next) {
             _value = value;
             _prev = prev;
             _next = next;
@@ -257,9 +257,9 @@ public class Deque<E> implements Iterable<E> {
 
 
         /**
-         * Returns the value of this QueueNode.
+         * Returns the value of this DequeNode.
          *
-         * @return the value of this QueueNode
+         * @return the value of this DequeNode
          */
         public E getValue() {
             return _value;
@@ -267,21 +267,21 @@ public class Deque<E> implements Iterable<E> {
 
 
         /**
-         * Returns the previous QueueNode.
+         * Returns the previous DequeNode.
          *
-         * @return the previous QueueNode
+         * @return the previous DequeNode
          */
-        public QueueNode<E> getPrevious() {
+        public DequeNode<E> getPrevious() {
             return _prev;
         }
 
 
         /**
-         * Returns the next QueueNode.
+         * Returns the next DequeNode.
          *
-         * @return the next QueueNode
+         * @return the next DequeNode
          */
-        public QueueNode<E> getNext() {
+        public DequeNode<E> getNext() {
             return _next;
         }
 
@@ -301,7 +301,7 @@ public class Deque<E> implements Iterable<E> {
          *
          * @param prev the new previous node
          */
-        public void setPrevious(QueueNode<E> prev) {
+        public void setPrevious(DequeNode<E> prev) {
             _prev = prev;
         }
 
@@ -311,24 +311,24 @@ public class Deque<E> implements Iterable<E> {
          *
          * @param next the new next node
          */
-        public void setNext(QueueNode<E> next) {
+        public void setNext(DequeNode<E> next) {
             _next = next;
         }
     }
 
 
     /**
-     * Implements the Iterator<T> interface for the Queue class.
+     * Implements the Iterator<T> interface for the Deque class.
      */
-    private class QueueIterator implements Iterator<E> {
+    private class DequeIterator implements Iterator<E> {
 
         private final boolean _reverse;
 
         /**
-         * Constructs a new QueueIterator object.
+         * Constructs a new DequeIterator object.
          *
          */
-        public QueueIterator(boolean reverse) {
+        public DequeIterator(boolean reverse) {
             _reverse = reverse;
         }
 
@@ -351,7 +351,12 @@ public class Deque<E> implements Iterable<E> {
          */
         public E next() {
             if (hasNext()) {
-                return dequeue();
+                if (_reverse) {
+                    return dequeueTail();
+                }
+                else {
+                    return dequeue();
+                }
             }
             else {
                 throw new NoSuchElementException();
