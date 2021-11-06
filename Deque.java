@@ -135,7 +135,7 @@ public class Deque<E> implements Iterable<E> {
             return oldHead.getValue();
         }
         else {
-            throw new NoSuchElementException(); // TODO see if this is right exception to throw
+            throw new NoSuchElementException();
         }
     }
 
@@ -155,7 +155,7 @@ public class Deque<E> implements Iterable<E> {
             return oldTail.getValue();
         }
         else {
-            throw new NoSuchElementException(); // TODO see if this is right exception to throw
+            throw new NoSuchElementException();
         }
     }
 
