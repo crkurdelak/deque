@@ -331,6 +331,7 @@ public class Deque<E> implements Iterable<E> {
             _reverse = reverse;
         }
 
+
         /**
          * Returns true if there are more elements in this iteration, else returns false.
          *
