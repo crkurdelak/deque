@@ -9,7 +9,6 @@ import java.util.NoSuchElementException;
  * @author ckurdelak20@georgefox.edu
  */
 public class Deque<E> implements Iterable<E> {
-    // TODO add reverseIterator
 
     // for constructing iterators
     private static final boolean REVERSED = true;
